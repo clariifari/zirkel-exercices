@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Zirkel">
+<meta name="theme-color" content="#14161a">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>Zirkel</title>
+<style>
+:root{
+  --bg:#f4f4f1; --card:#ffffff; --ink:#1b1d21; --muted:#6b6f78; --line:#e3e3de;
+  --acc:#e2572b; --acc-ink:#fff; --soft:#fbe9e2;
+  --beine:#2f7d5b; --oben:#2f62b5; --bauch:#b5822f; --ganz:#7a4fb0;
+  --radius:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#14161a; --card:#1e2127; --ink:#eceae5; --muted:#9a9ea7; --line:#2d3139;
+    --acc:#ff7a4d; --acc-ink:#1a0f0a; --soft:#3a2219;
+    --beine:#5fc497; --oben:#7aa5f0; --bauch:#e3b25c; --ganz:#b38ae6;
+  }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 -apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif}
+body{padding:env(safe-area-inset-top) 0 calc(76px + env(safe-area-inset-bottom))}
+header{padding:18px 16px 6px}
+h1{font-size:30px;margin:0;letter-spacing:-.02em}
+h2{font-size:18px;margin:22px 0 10px}
+.sub{color:var(--muted);font-size:14px;margin-top:2px}
+main{padding:0 16px;max-width:640px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin:10px 0}
+.lbl{font-size:13px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin:14px 0 8px}
+.lbl:first-child{margin-top:0}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:999px;padding:7px 12px;font:inherit;font-size:14px;cursor:pointer}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.stepper{display:flex;align-items:center;gap:14px}
+.stepper button{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:22px;cursor:pointer}
+.stepper .num{font-size:34px;font-weight:700;min-width:44px;text-align:center;font-variant-numeric:tabular-nums}
+.btn{display:block;width:100%;border:0;border-radius:12px;padding:14px;font:inherit;font-weight:650;font-size:17px;background:var(--acc);color:var(--acc-ink);cursor:pointer}
+.btn.sec{background:transparent;color:var(--ink);border:1px solid var(--line);font-weight:550}
+.btn.small{display:inline-block;width:auto;padding:9px 14px;font-size:15px}
+.row{display:flex;gap:8px}
+.row>*{flex:1}
+.ex{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line)}
+.ex:first-child{border-top:0}
+.ex .n{width:30px;height:30px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff}
+.ex .body{flex:1;min-width:0}
+.ex .t{font-weight:650}
+.ex .m{font-size:13px;color:var(--muted);margin-top:2px}
+.ex .how{font-size:14px;margin-top:6px;display:none}
+.ex.open .how{display:block}
+.ex .acts{display:flex;gap:4px;flex:none}
+.ic{width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
+.ic.on{background:var(--soft);border-color:var(--acc);color:var(--acc)}
+.tag{display:inline-block;font-size:12px;padding:1px 7px;border-radius:999px;border:1px solid var(--line);margin:4px 4px 0 0;color:var(--muted)}
+.bg-beine{background:var(--beine)}.bg-oben{background:var(--oben)}.bg-bauch{background:var(--bauch)}.bg-ganz{background:var(--ganz)}
+.note{font-size:14px;color:var(--muted)}
+.note b{color:var(--ink)}
+.why{background:var(--soft);border-color:transparent}
+.why p{margin:6px 0;font-size:14px}
+input[type=text],textarea,select{width:100%;font:inherit;font-size:16px;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+textarea{min-height:70px;resize:vertical}
+.field{margin:10px 0}
+.field label{display:block;font-size:13px;color:var(--muted);margin-bottom:5px;font-weight:600}
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:flex;padding:6px 8px calc(6px + env(safe-area-inset-bottom));z-index:5}
+nav button{flex:1;border:0;background:transparent;color:var(--muted);font:inherit;font-size:12px;padding:6px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer}
+nav button .i{font-size:20px;line-height:1}
+nav button.on{color:var(--acc)}
+.search{margin:6px 0 10px}
+.empty{color:var(--muted);text-align:center;padding:20px 0}
+.sheet{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:flex-end;z-index:10}
+.sheet .in{background:var(--card);width:100%;max-height:92vh;overflow:auto;border-radius:18px 18px 0 0;padding:16px 16px calc(20px + env(safe-area-inset-bottom));max-width:640px;margin:0 auto}
+.sheet h3{margin:0 0 6px;font-size:20px}
+.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-size:14px;z-index:20}
+.src{font-size:11px;color:var(--acc);font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-left:6px}
+.hist{font-size:14px;padding:8px 0;border-top:1px solid var(--line)}
+.hist:first-child{border-top:0}
+.cnt{font-variant-numeric:tabular-nums;color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<nav id="nav"></nav>
+<script>
+"use strict";
+const KEY='zirkel-v1';
+const REG={beine:'Beine',oben:'Oberkörper',bauch:'Bauch/Rumpf',ganz:'Ganzkörper'};
+const TYP={technik:'Technik',kraft:'Kraft',hiit:'Ausdauer (HIIT)'};
+const PAT={knie:'Kniebeuge/Ausfall',huefte:'Hüftstreckung',drueck:'Drücken',zug:'Ziehen',rumpf:'Rumpfstabilität',sprung:'Sprung/Lauf',komplex:'Komplex'};
+const EQ0={ohne:'ohne Gerät',matte:'Matte',kasten:'Kasten',bank:'Bank',ringe:'Ringe',kb4:'KB 4 kg',kb8:'KB 8 kg'};
+const LVL={1:'leicht',2:'mittel',3:'schwer'};
+
+/* Standardpool: Übungen für Turnhalle (Kästen, Matten, Ringe, Bänke) + KB 4/8 kg */
+const SEED=[
+// Beine
+['goblet','Goblet Squat','beine',['kraft'],['kb8'],'knie',1,'KB vor der Brust halten, tief in die Hocke, Ellbogen innen an den Knien vorbei.','Fersen bleiben am Boden, Brust hoch.'],
+['swing','Kettlebell Swing','beine',['hiit','kraft'],['kb8'],'huefte',2,'Hüfte nach hinten schieben (Hip Hinge), KB zwischen den Beinen durch, explosiv mit der Hüfte nach vorn bis Brusthöhe schwingen.','Kraft kommt aus der Hüfte, nicht aus den Armen. Rücken neutral.'],
+['ausfall','Ausfallschritt rückwärts mit KB','beine',['kraft'],['kb8'],'knie',1,'KB als Goblet halten, großer Schritt nach hinten, hinteres Knie Richtung Boden, abwechselnd.','Vorderes Knie über dem Fuß, nicht nach innen.'],
+['stepup','Step-ups auf Kasten','beine',['kraft','hiit'],['kasten'],'knie',1,'Einen Fuß komplett auf den Kasten (Kniehöhe), hochdrücken, kontrolliert ab. Seiten wechseln oder pro Seite.','Druck über die Ferse des oberen Beins, nicht vom unteren abspringen.'],
+['boxjump','Box Jumps (niedriger Kasten)','beine',['hiit','technik'],['kasten'],'sprung',2,'Aus leichter Hocke beidbeinig auf einen niedrigen Kasten springen, weich landen, heruntersteigen.','Leise landen. Heruntersteigen schont die Achillessehne.'],
+['bulgarian','Bulgarian Split Squat','beine',['kraft'],['bank','kb4'],'knie',2,'Hinterer Fuß auf der Bank, KB 4 kg in der Hand auf der Seite des hinteren Beins, senkrecht nach unten.','Oberkörper leicht nach vorn, Gewicht auf dem vorderen Bein.'],
+['slrdl','Einbeiniges Kreuzheben mit KB','beine',['kraft','technik'],['kb8'],'huefte',2,'Auf einem Bein stehen, KB in der Gegenhand, Oberkörper und freies Bein wie eine Wippe absenken.','Hüfte bleibt parallel zum Boden, Knie leicht gebeugt.'],
+['hipthrust','Hip Thrust an der Bank','beine',['kraft'],['bank','kb8'],'huefte',1,'Schulterblätter an der Bankkante, KB auf der Hüfte, Hüfte hochdrücken bis Oberkörper und Oberschenkel eine Linie bilden.','Oben 1 s Po fest anspannen, Kinn leicht zur Brust.'],
+['bridge1','Glute Bridge einbeinig','beine',['kraft'],['matte'],'huefte',1,'Rückenlage, ein Fuß aufgestellt, anderes Bein gestreckt, Hüfte hochdrücken.','Becken nicht kippen lassen.'],
+['wallsit','Wandsitzen','beine',['kraft'],['ohne'],'knie',1,'Rücken an die Wand, Knie ca. 90°, halten.','Gleichmäßig atmen, Knie über den Füßen.'],
+['squatjump','Squat Jumps','beine',['hiit'],['ohne'],'sprung',2,'Halbe Hocke, explosiv hochspringen, weich in die nächste Hocke landen.','Knie bei der Landung nicht nach innen.'],
+['bankspruenge','Seitliche Sprünge über die Bank','beine',['hiit','technik'],['bank'],'sprung',2,'Seitlich neben der Bank, beidbeinig darüber springen, hin und her.','Kurzer Bodenkontakt, Blick nach vorn.'],
+['skater','Skater Jumps','beine',['hiit','technik'],['ohne'],'sprung',2,'Seitlich von einem Bein aufs andere springen, kurz stabil landen.','Landung 1 s halten = mehr Technik, durchspringen = mehr HIIT.'],
+['cossack','Kosakenkniebeuge','beine',['technik','kraft'],['ohne'],'knie',2,'Breiter Stand, Gewicht auf eine Seite in die tiefe Hocke verlagern, anderes Bein gestreckt.','Langsam, Ferse des gebeugten Beins bleibt unten.'],
+['nordic','Nordic Hamstring Curl','beine',['kraft'],['kasten','matte'],'huefte',3,'Kniend auf der Matte, Füße unter dem Kasten fixiert (oder Partner), Oberkörper gerade langsam nach vorne sinken lassen, mit den Händen abfangen.','So langsam wie möglich absenken. Nachgewiesen gut zur Verletzungsprävention der hinteren Oberschenkel.'],
+['wade','Wadenheben einbeinig am Kasten','beine',['kraft'],['kasten'],'sprung',1,'Vorfuß auf der Kastenkante (unterstes Teil), Ferse tief, auf die Zehenspitzen hochdrücken.','Oben kurz halten, unten voll dehnen. Gut für Läufer:innen.'],
+['sumo','Sumo-Kniebeuge mit KB','beine',['kraft'],['kb8'],'knie',1,'Breiter Stand, Fußspitzen außen, KB hängt zwischen den Beinen, tief in die Hocke.','Knie zeigen in Richtung Fußspitzen.'],
+// Oberkörper
+['liegestuetz','Liegestütz','oben',['kraft'],['ohne'],'drueck',2,'Hände schulterbreit, Körper ein Brett, Brust bis knapp über den Boden.','Ellbogen ca. 45° vom Körper. Leichter: auf den Knien.'],
+['liegebank','Liegestütz erhöht (Hände auf Bank)','oben',['kraft'],['bank'],'drueck',1,'Hände auf der Bank, Körper gestreckt, Brust zur Bankkante.','Leichtere Variante, gute Einstiegsübung.'],
+['ringrow','Ring-Rudern','oben',['kraft'],['ringe'],'zug',1,'Ringe auf Brusthöhe, schräg nach hinten lehnen, Körper gestreckt, Brust zu den Ringen ziehen.','Schulterblätter zusammen. Je flacher der Körper, desto schwerer.'],
+['ringpush','Ring-Liegestütz','oben',['kraft','technik'],['ringe'],'drueck',3,'Ringe knapp über dem Boden, Liegestütz mit den Händen in den Ringen.','Ringe nah am Körper halten, nicht ausbrechen lassen.'],
+['dips','Dips an der Bank','oben',['kraft'],['bank'],'drueck',1,'Hände hinter dem Körper auf der Bank, Beine gestreckt oder gebeugt, Ellbogen nach hinten beugen.','Schultern weg von den Ohren, nur bis ca. 90° Ellbogen.'],
+['kbrow','KB-Rudern einarmig','oben',['kraft'],['kb8','bank'],'zug',1,'Hand und Knie auf der Bank, KB mit dem anderen Arm zur Hüfte ziehen.','Rücken flach, Ellbogen nah am Körper.'],
+['kbpress','KB-Überkopfdrücken einarmig','oben',['kraft','technik'],['kb8'],'drueck',2,'KB in Rack-Position (an der Schulter), senkrecht über den Kopf drücken.','Bauch und Po fest, kein Hohlkreuz. Bei Bedarf 4 kg.'],
+['ringy','Y-Raises an den Ringen','oben',['kraft','technik'],['ringe'],'zug',2,'Schräg nach hinten lehnen, gestreckte Arme zu einem Y über den Kopf ziehen.','Gut für Schultergesundheit. Langsam ablassen.'],
+['negpull','Negative Klimmzüge an den Ringen','oben',['kraft'],['ringe','kasten'],'zug',3,'Vom Kasten aus in die obere Klimmzugposition, dann 3–5 s langsam ablassen.','Nur das Ablassen zählt. Wieder auf den Kasten steigen.'],
+['pike','Pike-Liegestütz Füße auf Kasten','oben',['kraft'],['kasten'],'drueck',3,'Füße auf dem Kasten, Hüfte hoch (umgedrehtes V), Kopf zwischen den Händen Richtung Boden.','Vorstufe zum Handstand-Drücken.'],
+['halo','KB Halo','oben',['technik'],['kb4'],'drueck',1,'KB am Griff kopfüber halten und eng um den Kopf kreisen, Richtung wechseln.','Rumpf stabil, nur die Arme bewegen sich. Mobilität für die Schultern.'],
+['ringsupport','Stützhalten an den Ringen','oben',['kraft','technik'],['ringe'],'drueck',3,'Ringe auf Hüfthöhe, hochstützen, Arme gestreckt halten.','Ringe nah am Körper, Daumen nach vorne drehen.'],
+['floorpress','KB Floor Press','oben',['kraft'],['kb8','matte'],'drueck',1,'Rückenlage, KB senkrecht über der Brust drücken, Oberarm berührt unten kurz den Boden.','Einarmig = zusätzliche Rumpfarbeit.'],
+// Bauch / Rumpf
+['plank','Unterarmstütz','bauch',['kraft'],['matte'],'rumpf',1,'Auf Unterarmen und Zehen, Körper eine Linie.','Po leicht anspannen, Bauchnabel einziehen.'],
+['sideplank','Seitstütz','bauch',['kraft'],['matte'],'rumpf',1,'Seitlich auf einem Unterarm, Hüfte hoch, Seitenwechsel nach halber Zeit.','Hüfte nicht nach hinten kippen.'],
+['deadbug','Dead Bug','bauch',['technik','kraft'],['matte'],'rumpf',1,'Rückenlage, Arme hoch, Beine 90°, gegengleich Arm und Bein strecken.','Unterer Rücken bleibt die ganze Zeit am Boden.'],
+['hollow','Hollow Hold','bauch',['kraft','technik'],['matte'],'rumpf',2,'Rückenlage, Schultern und gestreckte Beine knapp über dem Boden halten.','Rücken flach auf der Matte. Leichter: Knie beugen.'],
+['birddog','Bird Dog','bauch',['technik'],['matte'],'rumpf',1,'Vierfüßlerstand, gegengleich Arm und Bein strecken, kurz halten.','Becken bleibt ruhig, als stünde ein Glas Wasser drauf.'],
+['mountain','Mountain Climbers','bauch',['hiit'],['ohne'],'rumpf',1,'Liegestützposition, Knie abwechselnd schnell zur Brust ziehen.','Hüfte tief, Schultern über den Händen.'],
+['twist','Russian Twist mit KB','bauch',['kraft'],['kb4','matte'],'rumpf',2,'Sitzend, Oberkörper leicht zurück, KB von Seite zu Seite führen.','Bewegung aus dem Brustkorb, Rücken lang.'],
+['ringrollout','Ring-Rollout','bauch',['kraft'],['ringe','matte'],'rumpf',3,'Kniend, Ringe tief, Arme nach vorne schieben und den Körper strecken, zurückziehen.','Kein Hohlkreuz, nur so weit wie die Spannung hält.'],
+['kneeraise','Hängendes Knieheben an den Ringen','bauch',['kraft'],['ringe'],'rumpf',2,'An den Ringen hängen, Knie kontrolliert zur Brust ziehen.','Nicht schwingen, langsam ablassen.'],
+['suitcase','Suitcase Carry','bauch',['kraft','technik'],['kb8'],'rumpf',1,'KB in einer Hand, aufrecht gehen (Hallenbreite), Seite wechseln.','Nicht zur Seite der KB kippen.'],
+['vups','Klappmesser (V-Ups)','bauch',['kraft'],['matte'],'rumpf',2,'Rückenlage, Arme und Beine gleichzeitig gestreckt nach oben zusammenführen.','Leichter: Knie anziehen (Tuck-ups).'],
+['pullthrough','Plank Pull-Through mit KB','bauch',['kraft','technik'],['kb4'],'rumpf',2,'Hohe Plank, KB neben dem Körper, mit der Gegenhand unter dem Körper durchziehen.','Hüfte nicht drehen, Füße etwas breiter.'],
+['shouldertap','Schulter-Tippen im Stütz','bauch',['technik'],['ohne'],'rumpf',1,'Liegestützposition, abwechselnd mit einer Hand die Gegenschulter berühren.','Hüfte so ruhig wie möglich.'],
+// Ganzkörper
+['burpee','Burpees','ganz',['hiit'],['ohne'],'komplex',2,'Hocke, in den Stütz springen, zurück in die Hocke, Strecksprung.','Leichter: ohne Liegestütz und ohne Sprung.'],
+['thruster','KB Thruster','ganz',['hiit','kraft'],['kb8'],'komplex',2,'Goblet Squat, beim Hochkommen KB mit beiden Händen über den Kopf drücken.','Schwung aus den Beinen mitnehmen.'],
+['cleanpress','KB Clean & Press einarmig','ganz',['technik','kraft'],['kb8'],'komplex',3,'KB aus dem Hang in die Rack-Position umsetzen, dann über den Kopf drücken.','KB rollt um das Handgelenk, nicht aufschlagen lassen. Erst mit 4 kg üben.'],
+['getup','Turkish Get-up','ganz',['technik'],['kb4','matte'],'komplex',3,'Aus der Rückenlage mit KB über dem Kopf schrittweise aufstehen und zurück.','Blick zur KB, langsam. Pro Durchgang Seite wechseln.'],
+['hampel','Hampelmann','ganz',['hiit'],['ohne'],'sprung',1,'Springen in Grätsche mit Armen über dem Kopf und zurück.','Locker auf dem Vorfuß.'],
+['pendel','Pendellauf','ganz',['hiit'],['ohne'],'sprung',1,'Zwischen zwei Linien (z. B. Hallenbreite) hin und her sprinten, Linie mit der Hand berühren.','Beim Wenden tief gehen.'],
+['highpull','KB Sumo High Pull','ganz',['hiit','kraft'],['kb8'],'komplex',2,'Breiter Stand, KB mit beiden Händen aus der Hocke explosiv bis unters Kinn ziehen.','Ellbogen hoch und außen, Hüfte treibt.'],
+['inchworm','Inchworm mit Liegestütz','ganz',['technik','hiit'],['ohne'],'komplex',1,'Aus dem Stand mit den Händen nach vorn laufen bis zum Stütz, Liegestütz, zurücklaufen, aufrichten.','Beine möglichst gestreckt.'],
+['baer','Bärenkriechen','ganz',['hiit','technik'],['ohne'],'komplex',1,'Auf Händen und Füßen, Knie knapp über dem Boden, gegengleich vorwärts krabbeln.','Rücken flach, kleine Schritte.'],
+['kastensteig','Kasten-Überklettern','ganz',['technik','hiit'],['kasten'],'komplex',2,'Über einen mittelhohen Kasten klettern oder flanken und auf der anderen Seite weiter.','Weich landen, mit den Händen abstützen.']
+].map(a=>({id:a[0],name:a[1],region:a[2],types:a[3],equip:a[4],pattern:a[5],level:a[6],how:a[7],cue:a[8],src:'standard'}));
+
+/* ---------- State ---------- */
+function defaults(){return {schema:1,pool:SEED.map(e=>({...e})),equipList:{...EQ0},
+  settings:{n:6,focus:'ausgewogen',types:['technik','kraft','hiit'],equip:Object.keys(EQ0),maxLevel:3,kbOnce:true},
+  current:null,history:[]};}
+let S;
+try{S=JSON.parse(localStorage.getItem(KEY))||defaults();}catch(e){S=defaults();}
+if(!S.equipList)S.equipList={...EQ0};
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+const byId=id=>S.pool.find(e=>e.id===id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const eqName=q=>S.equipList[q]||q;
+let tab='zirkel', poolFilter={region:null,type:null,equip:null,q:''};
+const SUGGEST=/[?&]vorschlag/.test(location.search);
+
+function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2000);}
+
+/* ---------- Generator ---------- */
+function candidates(){
+  const s=S.settings, avail=new Set(s.equip.concat(['ohne']));
+  return S.pool.filter(e=>e.equip.every(q=>avail.has(q))&&e.types.some(t=>s.types.includes(t))&&e.level<=s.maxLevel);
+}
+function regionSeq(n,focus){
+  const base=['beine','oben','bauch'];
+  if(focus==='ausgewogen'){const st=Math.floor(Math.random()*3);return Array.from({length:n},(_,i)=>base[(st+i)%3]);}
+  const others=base.filter(r=>r!==focus);
+  return Array.from({length:n},(_,i)=>i%2===0?focus:others[(i>>1)%2]);
+}
+function recentIds(){const r=new Set();S.history.slice(0,2).forEach(h=>h.ids.forEach(i=>r.add(i)));return r;}
+function pickFor(region,chosen,cand){
+  const s=S.settings, ids=new Set(chosen.map(e=>e.id)), recent=recentIds();
+  const pat={},typ={},eq={};
+  chosen.forEach(e=>{pat[e.pattern]=(pat[e.pattern]||0)+1;e.types.forEach(t=>typ[t]=(typ[t]||0)+1);e.equip.forEach(q=>eq[q]=(eq[q]||0)+1);});
+  const minT=Math.min(...s.types.map(t=>typ[t]||0));
+  let pool=cand.filter(e=>!ids.has(e.id));
+  let el=pool.filter(e=>e.region===region||e.region==='ganz');
+  if(!el.length)el=pool;
+  const scored=el.map(e=>{
+    let w=1;
+    if(e.region==='ganz'&&region!=='ganz')w*=s.focus==='ausgewogen'?0.3:(region===s.focus?0.08:0.25);
+    w*=1/(1+1.5*(pat[e.pattern]||0));
+    if(e.types.some(t=>s.types.includes(t)&&(typ[t]||0)===minT))w*=1.8;
+    e.equip.forEach(q=>{if(q!=='ohne'&&q!=='matte'&&eq[q])w*=0.5;});
+    if(s.kbOnce&&e.equip.some(q=>/^kb/.test(q)&&eq[q]))w=0;
+    if(recent.has(e.id))w*=0.25;
+    return [e,w];
+  }).filter(x=>x[1]>0);
+  if(!scored.length)return null;
+  let tot=scored.reduce((a,x)=>a+x[1],0),r=Math.random()*tot;
+  for(const [e,w] of scored){r-=w;if(r<=0)return e;}
+  return scored[scored.length-1][0];
+}
+function generate(){
+  const s=S.settings,cand=candidates(),old=S.current?S.current.items:[];
+  const seq=regionSeq(s.n,s.focus),items=[];
+  // gesperrte Übungen behalten ihren Platz
+  for(let i=0;i<s.n;i++){const o=old[i];if(o&&o.locked&&byId(o.id))items[i]={...o};}
+  for(let i=0;i<s.n;i++){
+    if(items[i])continue;
+    const chosen=items.filter(Boolean).map(x=>byId(x.id));
+    const e=pickFor(seq[i],chosen,cand);
+    items[i]=e?{id:e.id,region:seq[i],locked:false}:null;
+  }
+  S.current={date:new Date().toISOString(),items:items.filter(Boolean),saved:false};
+  save();render();
+  if(S.current.items.length<s.n)toast(`Nur ${S.current.items.length} passende Übungen gefunden`);
+}
+function reroll(i){
+  const it=S.current.items[i],cand=candidates();
+  const chosen=S.current.items.filter((_,j)=>j!==i).map(x=>byId(x.id)).filter(Boolean);
+  const without=cand.filter(e=>e.id!==it.id);
+  const e=pickFor(it.region,chosen,without);
+  if(!e){toast('Keine Alternative gefunden');return;}
+  S.current.items[i]={id:e.id,region:it.region,locked:false};S.current.saved=false;save();render();
+}
+function domType(list){const c={};list.forEach(e=>e.types.forEach(t=>c[t]=(c[t]||0)+1/e.types.length));return Object.keys(c).sort((a,b)=>c[b]-c[a])[0];}
+const DOSE={
+  hiit:'30–40 s Belastung, 15–20 s Wechsel, 2–3 Runden, 1–2 min Pause zwischen den Runden. Anstrengung ca. 7–8 von 10.',
+  kraft:'10–15 Wdh. oder 40–45 s pro Station, so dass noch 2–3 Wdh. „im Tank“ bleiben. 20–30 s Wechsel, 3 Runden.',
+  technik:'45–60 s ruhig und sauber, Qualität vor Tempo. Ausreichend Pause (30 s), 2–3 Runden. Technik nie bis zur Erschöpfung.'
+};
+function circuitText(){
+  const list=S.current.items.map(x=>byId(x.id)).filter(Boolean);
+  const d=new Date(S.current.date).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'});
+  return `Zirkel ${d}\n`+list.map((e,i)=>`${i+1}. ${e.name}`+(e.equip.filter(q=>q!=='ohne').length?` (${e.equip.filter(q=>q!=='ohne').map(eqName).join(', ')})`:'')).join('\n')+`\n\nEmpfehlung: ${DOSE[domType(list)]||''}`;
+}
+async function shareText(t){
+  if(navigator.share){try{await navigator.share({text:t});return;}catch(e){if(e.name==='AbortError')return;}}
+  try{await navigator.clipboard.writeText(t);toast('Kopiert');}catch(e){prompt('Kopieren:',t);}
+}
+
+/* ---------- Import/Export einzelner Vorschläge ---------- */
+function b64e(o){return btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');}
+function b64d(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return JSON.parse(decodeURIComponent(escape(atob(s))));}
+const pack=e=>({n:e.name,r:e.region,t:e.types,e:e.equip,p:e.pattern,l:e.level,h:e.how,c:e.cue,b:e.by||''});
+function clean(o){
+  const str=(v,m)=>String(v||'').slice(0,m);
+  const ex={id:'x'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),name:str(o.n,80).trim(),
+    region:REG[o.r]?o.r:'ganz',types:(Array.isArray(o.t)?o.t:[]).filter(t=>TYP[t]),
+    equip:(Array.isArray(o.e)?o.e:[]).map(q=>str(q,30).trim()).filter(Boolean).slice(0,5),
+    pattern:PAT[o.p]?o.p:'komplex',level:[1,2,3].includes(+o.l)?+o.l:2,how:str(o.h,600),cue:str(o.c,300),by:str(o.b,40),src:'extern'};
+  if(!ex.types.length)ex.types=['kraft'];if(!ex.equip.length)ex.equip=['ohne'];
+  return ex.name?ex:null;
+}
+function parseCode(txt){
+  const m=String(txt).match(/import=([A-Za-z0-9_-]+)/)||String(txt).trim().match(/^([A-Za-z0-9_-]{10,})$/);
+  if(!m)return null;
+  try{const d=b64d(m[1]);return (Array.isArray(d)?d:[d]).map(clean).filter(Boolean);}catch(e){return null;}
+}
+function addImported(list){
+  list.forEach(ex=>{
+    ex.equip.forEach(q=>{if(!S.equipList[q]){const k=q.toLowerCase();const hit=Object.keys(S.equipList).find(x=>x===k||S.equipList[x].toLowerCase()===k);
+      if(hit){ex.equip=ex.equip.map(z=>z===q?hit:z);}else{S.equipList[q]=q;}}});
+    ex.equip=[...new Set(ex.equip)];
+    S.pool.push(ex);
+  });
+  save();
+}
+
+/* ---------- Rendering ---------- */
+function chips(opts,sel,attr,multi){
+  return `<div class="chips">${Object.entries(opts).map(([k,v])=>`<button class="chip ${(multi?sel.includes(k):sel===k)?'on':''}" data-${attr}="${esc(k)}">${esc(v)}</button>`).join('')}</div>`;
+}
+function exMeta(e){
+  const eq=e.equip.filter(q=>q!=='ohne').map(eqName);
+  return `${REG[e.region]} · ${e.types.map(t=>TYP[t]).join(', ')}${eq.length?' · '+esc(eq.join(', ')):''}`;
+}
+function viewZirkel(){
+  const s=S.settings,cand=candidates(),c=S.current;
+  let h=`<header><h1>Zirkel</h1><div class="sub">${S.pool.length} Übungen im Pool · ${cand.length} passen zu deiner Auswahl</div></header><main>`;
+  h+=`<div class="card">
+    <div class="lbl">Anzahl Übungen</div>
+    <div class="stepper"><button data-n="-1">−</button><div class="num">${s.n}</div><button data-n="1">+</button></div>
+    <div class="lbl">Schwerpunkt</div>${chips({ausgewogen:'Ausgewogen',oben:'Oberkörper',bauch:'Bauch',beine:'Beine'},s.focus,'focus')}
+    <div class="lbl">Art</div>${chips(TYP,s.types,'type',true)}
+    <div class="lbl">Geräte heute</div>${chips(Object.fromEntries(Object.entries(S.equipList).filter(([k])=>k!=='ohne')),s.equip,'eq',true)}
+    <div class="lbl">Höchstens</div>${chips(LVL,String(s.maxLevel),'lvl')}
+    <div class="lbl">Optionen</div><div class="chips"><button class="chip ${s.kbOnce?'on':''}" data-kbonce="1">Jede Kettlebell nur 1×</button></div>
+    <div style="margin-top:16px"><button class="btn" data-act="gen">${c?'Neu zusammenstellen':'Zirkel zusammenstellen'}</button></div>
+  </div>`;
+  if(c&&c.items.length){
+    const list=c.items.map(x=>byId(x.id));
+    h+=`<h2>Dein Zirkel</h2><div class="card">`+c.items.map((x,i)=>{const e=byId(x.id);if(!e)return'';
+      return `<div class="ex" data-open="${i}"><div class="n bg-${e.region}">${i+1}</div><div class="body"><div class="t">${esc(e.name)}${e.src!=='standard'?`<span class="src">${e.src==='extern'?'extern':'eigene'}</span>`:''}</div><div class="m">${exMeta(e)}</div>
+      <div class="how">${esc(e.how)}${e.cue?`<div class="note" style="margin-top:4px"><b>Tipp:</b> ${esc(e.cue)}</div>`:''}${e.by?`<div class="note">von ${esc(e.by)}</div>`:''}</div></div>
+      <div class="acts"><button class="ic ${x.locked?'on':''}" data-lock="${i}" title="Behalten">${x.locked?'🔒':'🔓'}</button><button class="ic" data-reroll="${i}" title="Austauschen">↻</button></div></div>`;}).join('')+`</div>`;
+    const dt=domType(list.filter(Boolean));
+    h+=`<div class="card why"><b>Warum diese Reihenfolge?</b>
+      <p>Die Stationen wechseln zwischen Beinen, Oberkörper und Rumpf. Während eine Muskelgruppe arbeitet, erholt sich die vorherige, der Puls bleibt aber oben. So trainierst du Kraft und Ausdauer gleichzeitig mit kurzen Pausen.</p>
+      <p>Die App achtet außerdem auf verschiedene Bewegungsmuster (Drücken/Ziehen, Kniebeuge/Hüfte, Rumpf), mischt die gewählten Arten und nimmt Übungen aus deinen letzten zwei Zirkeln seltener.</p>
+      <p><b>Dosierung (${esc(TYP[dt]||'')}):</b> ${DOSE[dt]||''}</p>
+      <p class="note">Vorher 8–10 min aufwärmen. Tippe eine Übung an für die Beschreibung, 🔓 behält sie beim Neu-Zusammenstellen, ↻ tauscht sie aus.</p></div>
+      <div class="row"><button class="btn sec" data-act="share">Teilen</button><button class="btn sec" data-act="savehist">${c.saved?'Gespeichert ✓':'Als gemacht speichern'}</button></div>`;
+  }
+  return h+`</main>`;
+}
+function viewPool(){
+  const f=poolFilter;
+  let list=S.pool.filter(e=>(!f.region||e.region===f.region)&&(!f.type||e.types.includes(f.type))&&(!f.equip||e.equip.includes(f.equip))&&(!f.q||e.name.toLowerCase().includes(f.q.toLowerCase())));
+  list.sort((a,b)=>a.name.localeCompare(b.name,'de'));
+  let h=`<header><h1>Übungspool</h1><div class="sub">${list.length} von ${S.pool.length} Übungen</div></header><main>
+    <div style="margin:10px 0"><button class="btn" data-act="new">+ Übung hinzufügen</button></div>
+    <input type="text" class="search" id="q" placeholder="Suchen…" value="${esc(f.q)}">
+    <div class="lbl">Körperteil</div>${chips(REG,f.region,'fregion')}
+    <div class="lbl">Art</div>${chips(TYP,f.type,'ftype')}
+    <div class="lbl">Gerät</div>${chips(S.equipList,f.equip,'fequip')}
+    <div class="card">`;
+  h+=list.length?list.map(e=>`<div class="ex" data-edit="${esc(e.id)}"><div class="n bg-${e.region}">${esc(REG[e.region][0])}</div><div class="body"><div class="t">${esc(e.name)}${e.src!=='standard'?`<span class="src">${e.src==='extern'?'extern':'eigene'}</span>`:''}</div><div class="m">${exMeta(e)} · ${LVL[e.level]}</div></div><div class="cnt">›</div></div>`).join(''):`<div class="empty">Keine Übung passt zum Filter.</div>`;
+  return h+`</div></main>`;
+}
+function viewMehr(){
+  let h=`<header><h1>Mehr</h1></header><main>
+  <h2>Übungen von anderen</h2>
+  <div class="card"><p class="note" style="margin-top:0">Schick anderen diesen Link. Sie füllen ein Formular aus und senden dir einen Code zurück, den du hier einfügst. Sie sehen dabei nichts von deinen Daten.</p>
+  <button class="btn sec" data-act="sharelink">Vorschlags-Link teilen</button>
+  <div class="field" style="margin-top:14px"><label>Code oder Link einfügen</label><textarea id="code" placeholder="https://…#import=… oder Code"></textarea></div>
+  <button class="btn" data-act="paste">Vorschlag prüfen</button></div>
+  <h2>Verlauf</h2><div class="card">`;
+  h+=S.history.length?S.history.map((x,i)=>`<div class="hist"><b>${new Date(x.date).toLocaleDateString('de-DE',{weekday:'short',day:'2-digit',month:'2-digit'})}</b> · ${x.ids.map(id=>esc(byId(id)?.name||'(gelöscht)')).join(', ')}</div>`).join(''):`<div class="empty">Noch keine gespeicherten Zirkel.</div>`;
+  h+=`</div><h2>Backup</h2><div class="card"><p class="note" style="margin-top:0">Alle Daten liegen nur auf diesem Gerät. Ab und zu sichern.</p>
+  <div class="row"><button class="btn sec" data-act="export">Backup sichern</button><button class="btn sec" data-act="import">Backup laden</button></div>
+  <input type="file" id="file" accept=".json,application/json" hidden>
+  <div style="margin-top:10px"><button class="btn sec" data-act="restore">Standardübungen wiederherstellen</button></div></div>
+  <h2>Grundlagen</h2><div class="card note">
+  <p style="margin-top:0">Zirkeltraining mit Wechsel der Muskelgruppen und kurzen Pausen verbessert Ausdauer (VO₂max) und Kraft gleichzeitig (Muñoz-Martínez et al., Sports Medicine 2017). Das Prinzip „gegenüberliegende Muskelgruppen abwechseln, 30 s Belastung, kurze Pausen, mehrere Runden“ stammt u. a. aus Klika & Jordan, ACSM's Health &amp; Fitness Journal 2013.</p>
+  <p>Kraftstationen: 10–15 Wdh. mit 2–3 Wdh. Reserve. HIIT-Stationen: hohe Anstrengung, aber saubere Technik. Technikübungen gehören nicht ans Ende einer erschöpften Runde.</p></div></main>`;
+  return h;
+}
+function exForm(e,isSuggest){
+  e=e||{name:'',region:'beine',types:['kraft'],equip:['ohne'],pattern:'knie',level:1,how:'',cue:''};
+  const eqOpts=isSuggest?EQ0:S.equipList;
+  return `<div class="field"><label>Name</label><input type="text" id="f-name" value="${esc(e.name)}" maxlength="80"></div>
+  <div class="lbl">Körperteil</div>${chips(REG,e.region,'xregion')}
+  <div class="lbl">Art (mehrere möglich)</div>${chips(TYP,e.types,'xtype',true)}
+  <div class="lbl">Geräte</div>${chips(Object.fromEntries([...Object.entries(eqOpts),...e.equip.filter(q=>!eqOpts[q]).map(q=>[q,q])]),e.equip,'xequip',true)}
+  <div class="row" style="margin-top:8px"><input type="text" id="f-neweq" placeholder="anderes Gerät…" maxlength="30"><button class="btn sec small" data-act="addeq" style="flex:none">+</button></div>
+  <div class="lbl">Bewegungsmuster</div>${chips(PAT,e.pattern,'xpat')}
+  <div class="lbl">Schwierigkeit</div>${chips(LVL,String(e.level),'xlvl')}
+  <div class="field"><label>Ausführung</label><textarea id="f-how" maxlength="600">${esc(e.how)}</textarea></div>
+  <div class="field"><label>Tipp / worauf achten</label><textarea id="f-cue" maxlength="300">${esc(e.cue)}</textarea></div>`;
+}
+let draft=null;
+function readForm(){
+  draft.name=document.getElementById('f-name').value.trim();
+  draft.how=document.getElementById('f-how').value.trim();
+  draft.cue=document.getElementById('f-cue').value.trim();
+}
+function bindFormChips(root,rerender){
+  root.querySelectorAll('[data-xregion]').forEach(b=>b.onclick=()=>{readForm();draft.region=b.dataset.xregion;rerender();});
+  root.querySelectorAll('[data-xtype]').forEach(b=>b.onclick=()=>{readForm();const t=b.dataset.xtype;draft.types=draft.types.includes(t)?draft.types.filter(x=>x!==t):[...draft.types,t];rerender();});
+  root.querySelectorAll('[data-xequip]').forEach(b=>b.onclick=()=>{readForm();const q=b.dataset.xequip;
+    if(q==='ohne')draft.equip=['ohne'];else{draft.equip=draft.equip.filter(x=>x!=='ohne');draft.equip=draft.equip.includes(q)?draft.equip.filter(x=>x!==q):[...draft.equip,q];if(!draft.equip.length)draft.equip=['ohne'];}rerender();});
+  root.querySelectorAll('[data-xpat]').forEach(b=>b.onclick=()=>{readForm();draft.pattern=b.dataset.xpat;rerender();});
+  root.querySelectorAll('[data-xlvl]').forEach(b=>b.onclick=()=>{readForm();draft.level=+b.dataset.xlvl;rerender();});
+  const add=root.querySelector('[data-act=addeq]');
+  if(add)add.onclick=()=>{readForm();const v=document.getElementById('f-neweq').value.trim().slice(0,30);if(!v)return;
+    draft.equip=draft.equip.filter(x=>x!=='ohne');if(!draft.equip.includes(v))draft.equip.push(v);rerender();};
+}
+function openEditor(id){
+  const e=id?byId(id):null;
+  draft=e?JSON.parse(JSON.stringify(e)):{name:'',region:'beine',types:['kraft'],equip:['ohne'],pattern:'knie',level:1,how:'',cue:''};
+  const sh=document.createElement('div');sh.className='sheet';document.body.appendChild(sh);
+  const r=()=>{
+    sh.innerHTML=`<div class="in"><h3>${e?'Übung bearbeiten':'Neue Übung'}</h3>${exForm(draft)}
+    <div class="row" style="margin-top:14px"><button class="btn sec" data-act="cancel">Abbrechen</button><button class="btn" data-act="ok">Speichern</button></div>
+    ${e?`<div style="margin-top:10px"><button class="btn sec" data-act="del" style="color:#d33">Löschen</button></div>`:''}</div>`;
+    bindFormChips(sh,r);
+    sh.querySelector('[data-act=cancel]').onclick=()=>sh.remove();
+    sh.querySelector('[data-act=ok]').onclick=()=>{readForm();if(!draft.name){toast('Bitte einen Namen eingeben');return;}if(!draft.types.length){toast('Mindestens eine Art wählen');return;}
+      draft.equip.forEach(q=>{if(!S.equipList[q])S.equipList[q]=q;});
+      if(e){Object.assign(e,draft);}else{draft.id='u'+Date.now().toString(36);draft.src='eigene';S.pool.push(draft);
+        draft.equip.forEach(q=>{if(!S.settings.equip.includes(q)&&q!=='ohne')S.settings.equip.push(q);});}
+      save();sh.remove();render();toast('Gespeichert');};
+    const d=sh.querySelector('[data-act=del]');
+    if(d)d.onclick=()=>{if(!confirm(`„${e.name}“ löschen?`))return;S.pool=S.pool.filter(x=>x.id!==e.id);if(S.current)S.current.items=S.current.items.filter(x=>x.id!==e.id);save();sh.remove();render();};
+  };
+  r();sh.addEventListener('click',ev=>{if(ev.target===sh)sh.remove();});
+}
+function showImport(list){
+  const sh=document.createElement('div');sh.className='sheet';document.body.appendChild(sh);
+  const standalone=navigator.standalone||matchMedia('(display-mode: standalone)').matches;
+  sh.innerHTML=`<div class="in"><h3>${list.length} Übungsvorschl${list.length===1?'ag':'äge'}</h3>
+    <div class="card">${list.map(e=>`<div class="ex open"><div class="n bg-${e.region}">${esc(REG[e.region][0])}</div><div class="body"><div class="t">${esc(e.name)}</div><div class="m">${REG[e.region]} · ${e.types.map(t=>TYP[t]).join(', ')} · ${esc(e.equip.map(eqName).join(', '))}</div><div class="how">${esc(e.how)}${e.cue?`<div class="note"><b>Tipp:</b> ${esc(e.cue)}</div>`:''}${e.by?`<div class="note">von ${esc(e.by)}</div>`:''}</div></div></div>`).join('')}</div>
+    ${!standalone&&location.hash?`<p class="note">Tipp: Wenn du die App vom Home-Bildschirm nutzt, kopiere den Code und füge ihn dort unter „Mehr“ ein. Safari und die Home-Bildschirm-App haben getrennte Speicher.</p>`:''}
+    <div class="row"><button class="btn sec" data-act="no">Verwerfen</button><button class="btn" data-act="yes">In Pool übernehmen</button></div></div>`;
+  sh.querySelector('[data-act=no]').onclick=()=>{sh.remove();history.replaceState(null,'',location.pathname+location.search);};
+  sh.querySelector('[data-act=yes]').onclick=()=>{addImported(list);sh.remove();history.replaceState(null,'',location.pathname+location.search);render();toast('Übernommen');};
+}
+
+/* ---------- Vorschlagsformular für andere ---------- */
+let sugList=[],sugBy=(()=>{try{return localStorage.getItem('zirkel-by')||''}catch(e){return ''}})();
+function renderSuggest(){
+  document.getElementById('nav').style.display='none';
+  document.body.style.paddingBottom='30px';
+  if(!draft)draft={name:'',region:'beine',types:['kraft'],equip:['ohne'],pattern:'knie',level:1,how:'',cue:''};
+  const app=document.getElementById('app');
+  app.innerHTML=`<header><h1>Übung vorschlagen</h1><div class="sub">Für einen Zirkel in der Turnhalle (Kästen, Matten, Ringe, Bänke, Kettlebells 4 und 8 kg).</div></header><main>
+    ${sugList.length?`<div class="card"><b>Bereit zum Senden:</b> ${sugList.map(x=>esc(x.n)).join(', ')}</div>`:''}
+    <div class="card"><div class="field"><label>Dein Name (optional)</label><input type="text" id="f-by" maxlength="40" value="${esc(sugBy)}"></div>${exForm(draft,true)}
+    <div class="row" style="margin-top:14px"><button class="btn sec" data-act="more">+ Weitere Übung</button><button class="btn" data-act="send">Senden</button></div></div></main>`;
+  bindFormChips(app,renderSuggest);
+  document.getElementById('f-by').oninput=ev=>{sugBy=ev.target.value;};
+  const take=()=>{readForm();const by=sugBy.trim();try{localStorage.setItem('zirkel-by',by);}catch(e){}
+    if(!draft.name)return false;if(!draft.types.length){toast('Mindestens eine Art wählen');return null;}
+    sugList.push(pack({...draft,by}));draft=null;return true;};
+  app.querySelector('[data-act=more]').onclick=()=>{const ok=take();if(ok===false)toast('Bitte einen Namen eingeben');renderSuggest();window.scrollTo(0,0);};
+  app.querySelector('[data-act=send]').onclick=()=>{const ok=take();if(ok===null)return;if(!sugList.length){toast('Bitte einen Namen eingeben');return;}
+    const code=b64e(sugList);const url=location.origin+location.pathname+'#import='+code;
+    shareText(`Übungsvorschlag für deinen Zirkel: ${sugList.map(x=>x.n).join(', ')}\n\n${url}`);
+    sugList=[];renderSuggest();};
+}
+
+/* ---------- Main render + events ---------- */
+function render(){
+  if(SUGGEST){renderSuggest();return;}
+  const app=document.getElementById('app');
+  app.innerHTML=tab==='zirkel'?viewZirkel():tab==='pool'?viewPool():viewMehr();
+  document.getElementById('nav').innerHTML=[['zirkel','◎','Zirkel'],['pool','☰','Pool'],['mehr','⋯','Mehr']].map(([k,i,l])=>`<button class="${tab===k?'on':''}" data-tab="${k}"><span class="i">${i}</span>${l}</button>`).join('');
+  bind();
+}
+function bind(){
+  const s=S.settings,$=q=>document.querySelectorAll(q);
+  $('[data-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;render();window.scrollTo(0,0);});
+  $('[data-n]').forEach(b=>b.onclick=()=>{s.n=Math.max(1,Math.min(20,s.n+ +b.dataset.n));save();render();});
+  $('[data-focus]').forEach(b=>b.onclick=()=>{s.focus=b.dataset.focus;save();render();});
+  $('[data-type]').forEach(b=>b.onclick=()=>{const t=b.dataset.type;const nx=s.types.includes(t)?s.types.filter(x=>x!==t):[...s.types,t];if(!nx.length)return;s.types=nx;save();render();});
+  $('[data-eq]').forEach(b=>b.onclick=()=>{const q=b.dataset.eq;s.equip=s.equip.includes(q)?s.equip.filter(x=>x!==q):[...s.equip,q];save();render();});
+  $('[data-lvl]').forEach(b=>b.onclick=()=>{s.maxLevel=+b.dataset.lvl;save();render();});
+  $('[data-kbonce]').forEach(b=>b.onclick=()=>{s.kbOnce=!s.kbOnce;save();render();});
+  $('[data-lock]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();const it=S.current.items[+b.dataset.lock];it.locked=!it.locked;save();render();});
+  $('[data-reroll]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();reroll(+b.dataset.reroll);});
+  $('[data-open]').forEach(b=>b.onclick=()=>b.classList.toggle('open'));
+  $('[data-edit]').forEach(b=>b.onclick=()=>openEditor(b.dataset.edit));
+  $('[data-fregion]').forEach(b=>b.onclick=()=>{poolFilter.region=poolFilter.region===b.dataset.fregion?null:b.dataset.fregion;render();});
+  $('[data-ftype]').forEach(b=>b.onclick=()=>{poolFilter.type=poolFilter.type===b.dataset.ftype?null:b.dataset.ftype;render();});
+  $('[data-fequip]').forEach(b=>b.onclick=()=>{poolFilter.equip=poolFilter.equip===b.dataset.fequip?null:b.dataset.fequip;render();});
+  const q=document.getElementById('q');
+  if(q)q.oninput=()=>{poolFilter.q=q.value;const pos=q.selectionStart;render();const n=document.getElementById('q');n.focus();n.setSelectionRange(pos,pos);};
+  const act={
+    gen:generate,
+    share:()=>shareText(circuitText()),
+    savehist:()=>{if(S.current.saved)return;S.history.unshift({date:new Date().toISOString(),ids:S.current.items.map(x=>x.id)});S.history=S.history.slice(0,30);S.current.saved=true;save();render();toast('Gespeichert');},
+    new:()=>openEditor(null),
+    sharelink:()=>shareText(`Hast du eine gute Übung für meinen Zirkel? Hier eintragen: ${location.origin+location.pathname}?vorschlag`),
+    paste:()=>{const l=parseCode(document.getElementById('code').value);if(!l||!l.length){toast('Code nicht erkannt');return;}showImport(l);},
+    export:()=>{const blob=new Blob([JSON.stringify(S,null,1)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`zirkel-backup-${new Date().toISOString().slice(0,10)}.json`;a.click();},
+    import:()=>document.getElementById('file').click(),
+    restore:()=>{let n=0;SEED.forEach(e=>{if(!byId(e.id)){S.pool.push({...e});n++;}});save();render();toast(n?`${n} Übungen wiederhergestellt`:'Alle Standardübungen sind schon da');}
+  };
+  $('[data-act]').forEach(b=>{if(act[b.dataset.act])b.onclick=act[b.dataset.act];});
+  const f=document.getElementById('file');
+  if(f)f.onchange=()=>{const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!Array.isArray(d.pool))throw 0;if(!confirm('Aktuelle Daten durch das Backup ersetzen?'))return;S=Object.assign(defaults(),d);save();render();toast('Backup geladen');}catch(e){toast('Datei ungültig');}};r.readAsText(f.files[0]);};
+}
+
+render();
+if(!SUGGEST&&location.hash.startsWith('#import=')){const l=parseCode(location.hash);if(l&&l.length)showImport(l);}
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
