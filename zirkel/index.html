@@ -172,7 +172,7 @@ const eqName=q=>S.equipList[q]||q;
 let tab='zirkel', poolFilter={region:null,type:null,equip:null,q:''};
 const SUGGEST=/[?&]vorschlag/.test(location.search);
 
-function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2000);}
+function toast(m){document.querySelectorAll('.toast').forEach(x=>x.remove());const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2000);}
 
 /* ---------- Generator ---------- */
 function candidates(){
@@ -209,20 +209,50 @@ function pickFor(region,chosen,cand){
   for(const [e,w] of scored){r-=w;if(r<=0)return e;}
   return scored[scored.length-1][0];
 }
+function arrange(items){
+  // Reihenfolge so legen, dass dieselbe Körperregion nicht direkt aufeinander folgt
+  const rest=items.slice(),out=[];let prev=null;
+  while(rest.length){
+    const cnt={};rest.forEach(x=>{const r=byId(x.id).region;cnt[r]=(cnt[r]||0)+1;});
+    const ok=rest.filter(x=>{const r=byId(x.id).region;return r==='ganz'||r!==prev;});
+    const pool=ok.length?ok:rest;
+    pool.sort((a,b)=>(cnt[byId(b.id).region]-cnt[byId(a.id).region])||(b.region==='ganz')-(a.region==='ganz'));
+    const top=pool.filter(x=>cnt[byId(x.id).region]===cnt[byId(pool[0].id).region]);
+    const pick=top[Math.floor(Math.random()*top.length)];
+    rest.splice(rest.indexOf(pick),1);out.push(pick);prev=byId(pick.id).region;
+  }
+  return out;
+}
 function generate(){
   const s=S.settings,cand=candidates(),old=S.current?S.current.items:[];
-  const seq=regionSeq(s.n,s.focus),items=[];
-  // gesperrte Übungen behalten ihren Platz
-  for(let i=0;i<s.n;i++){const o=old[i];if(o&&o.locked&&byId(o.id))items[i]={...o};}
-  for(let i=0;i<s.n;i++){
-    if(items[i])continue;
-    const chosen=items.filter(Boolean).map(x=>byId(x.id));
-    const e=pickFor(seq[i],chosen,cand);
-    items[i]=e?{id:e.id,region:seq[i],locked:false}:null;
-  }
-  S.current={date:new Date().toISOString(),items:items.filter(Boolean),saved:false};
+  const locked=old.filter(o=>o.locked&&byId(o.id)).map(o=>({...o}));
+  if(locked.length>s.n)s.n=locked.length;
+  // freie Plätze bekommen die Regionen, die die festen Übungen noch nicht abdecken
+  const seq=regionSeq(s.n,s.focus);
+  locked.forEach(o=>{const r=byId(o.id).region;let k=seq.indexOf(r);
+    if(k<0){const c={};seq.forEach(x=>c[x]=(c[x]||0)+1);k=seq.indexOf(Object.keys(c).sort((a,b)=>c[b]-c[a])[0]);}
+    if(k>=0)seq.splice(k,1);});
+  const items=locked.slice();
+  seq.forEach(r=>{const e=pickFor(r,items.map(x=>byId(x.id)),cand);if(e)items.push({id:e.id,region:r,locked:false});});
+  S.current={date:new Date().toISOString(),items:arrange(items),saved:false};
   save();render();
   if(S.current.items.length<s.n)toast(`Nur ${S.current.items.length} passende Übungen gefunden`);
+}
+function inCircuit(id){return !!(S.current&&S.current.items.some(x=>x.id===id));}
+function addToCircuit(id){
+  const e=byId(id);if(!e)return;
+  if(!S.current)S.current={date:new Date().toISOString(),items:[],saved:false};
+  const c=S.current;
+  if(inCircuit(id)){c.items.find(x=>x.id===id).locked=true;}
+  else{
+    const free=c.items.map((x,i)=>[x,i]).filter(([x])=>!x.locked);
+    const same=free.find(([x])=>byId(x.id)&&byId(x.id).region===e.region);
+    const item={id,region:e.region,locked:true};
+    if(c.items.length>=S.settings.n&&free.length){const [,i]=same||free[free.length-1];c.items[i]=item;}
+    else{c.items.push(item);if(c.items.length>S.settings.n)S.settings.n=c.items.length;}
+    c.items=arrange(c.items);
+  }
+  c.saved=false;save();render();toast(`„${e.name}“ ist im Zirkel`);
 }
 function reroll(i){
   const it=S.current.items[i],cand=candidates();
@@ -295,11 +325,12 @@ function viewZirkel(){
     <div class="lbl">Geräte heute</div>${chips(Object.fromEntries(Object.entries(S.equipList).filter(([k])=>k!=='ohne')),s.equip,'eq',true)}
     <div class="lbl">Höchstens</div>${chips(LVL,String(s.maxLevel),'lvl')}
     <div class="lbl">Optionen</div><div class="chips"><button class="chip ${s.kbOnce?'on':''}" data-kbonce="1">Jede Kettlebell nur 1×</button></div>
-    <div style="margin-top:16px"><button class="btn" data-act="gen">${c?'Neu zusammenstellen':'Zirkel zusammenstellen'}</button></div>
+    <div style="margin-top:16px"><button class="btn" data-act="gen">${c&&c.items.length>=s.n?'Neu zusammenstellen':'Zirkel zusammenstellen'}</button></div>
   </div>`;
   if(c&&c.items.length){
     const list=c.items.map(x=>byId(x.id));
-    h+=`<h2>Dein Zirkel</h2><div class="card">`+c.items.map((x,i)=>{const e=byId(x.id);if(!e)return'';
+    const freeN=s.n-c.items.length;
+    h+=`<h2>Dein Zirkel</h2>${freeN>0?`<div class="card note">Noch <b>${freeN}</b> Platz${freeN>1?'e':''} frei. Tippe auf „Zirkel zusammenstellen“, dann füllt die App passend auf. Deine festen Übungen (🔒) bleiben drin.</div>`:''}<div class="card">`+c.items.map((x,i)=>{const e=byId(x.id);if(!e)return'';
       return `<div class="ex" data-open="${i}"><div class="n bg-${e.region}">${i+1}</div><div class="body"><div class="t">${esc(e.name)}${e.src!=='standard'?`<span class="src">${e.src==='extern'?'extern':'eigene'}</span>`:''}</div><div class="m">${exMeta(e)}</div>
       <div class="how">${esc(e.how)}${e.cue?`<div class="note" style="margin-top:4px"><b>Tipp:</b> ${esc(e.cue)}</div>`:''}${e.by?`<div class="note">von ${esc(e.by)}</div>`:''}</div></div>
       <div class="acts"><button class="ic ${x.locked?'on':''}" data-lock="${i}" title="Behalten">${x.locked?'🔒':'🔓'}</button><button class="ic" data-reroll="${i}" title="Austauschen">↻</button></div></div>`;}).join('')+`</div>`;
@@ -308,7 +339,7 @@ function viewZirkel(){
       <p>Die Stationen wechseln zwischen Beinen, Oberkörper und Rumpf. Während eine Muskelgruppe arbeitet, erholt sich die vorherige, der Puls bleibt aber oben. So trainierst du Kraft und Ausdauer gleichzeitig mit kurzen Pausen.</p>
       <p>Die App achtet außerdem auf verschiedene Bewegungsmuster (Drücken/Ziehen, Kniebeuge/Hüfte, Rumpf), mischt die gewählten Arten und nimmt Übungen aus deinen letzten zwei Zirkeln seltener.</p>
       <p><b>Dosierung (${esc(TYP[dt]||'')}):</b> ${DOSE[dt]||''}</p>
-      <p class="note">Vorher 8–10 min aufwärmen. Tippe eine Übung an für die Beschreibung, 🔓 behält sie beim Neu-Zusammenstellen, ↻ tauscht sie aus.</p></div>
+      <p class="note">Vorher 8–10 min aufwärmen. Tippe eine Übung an für die Beschreibung, 🔓 behält sie beim Neu-Zusammenstellen, ↻ tauscht sie aus. Bestimmte Übungen findest du im Pool über die Suche und nimmst sie mit ＋ auf.</p></div>
       <div class="row"><button class="btn sec" data-act="share">Teilen</button><button class="btn sec" data-act="savehist">${c.saved?'Gespeichert ✓':'Als gemacht speichern'}</button></div>`;
   }
   return h+`</main>`;
@@ -324,7 +355,7 @@ function viewPool(){
     <div class="lbl">Art</div>${chips(TYP,f.type,'ftype')}
     <div class="lbl">Gerät</div>${chips(S.equipList,f.equip,'fequip')}
     <div class="card">`;
-  h+=list.length?list.map(e=>`<div class="ex" data-edit="${esc(e.id)}"><div class="n bg-${e.region}">${esc(REG[e.region][0])}</div><div class="body"><div class="t">${esc(e.name)}${e.src!=='standard'?`<span class="src">${e.src==='extern'?'extern':'eigene'}</span>`:''}</div><div class="m">${exMeta(e)} · ${LVL[e.level]}</div></div><div class="cnt">›</div></div>`).join(''):`<div class="empty">Keine Übung passt zum Filter.</div>`;
+  h+=list.length?list.map(e=>`<div class="ex" data-edit="${esc(e.id)}"><div class="n bg-${e.region}">${esc(REG[e.region][0])}</div><div class="body"><div class="t">${esc(e.name)}${e.src!=='standard'?`<span class="src">${e.src==='extern'?'extern':'eigene'}</span>`:''}</div><div class="m">${exMeta(e)} · ${LVL[e.level]}</div></div><button class="ic ${inCircuit(e.id)?'on':''}" data-add="${esc(e.id)}" title="In Zirkel aufnehmen">${inCircuit(e.id)?'✓':'＋'}</button></div>`).join(''):`<div class="empty">Keine Übung passt zum Filter.</div>`;
   return h+`</div></main>`;
 }
 function viewMehr(){
@@ -382,7 +413,7 @@ function openEditor(id){
   const r=()=>{
     sh.innerHTML=`<div class="in"><h3>${e?'Übung bearbeiten':'Neue Übung'}</h3>${exForm(draft)}
     <div class="row" style="margin-top:14px"><button class="btn sec" data-act="cancel">Abbrechen</button><button class="btn" data-act="ok">Speichern</button></div>
-    ${e?`<div style="margin-top:10px"><button class="btn sec" data-act="del" style="color:#d33">Löschen</button></div>`:''}</div>`;
+    ${e?`<div style="margin-top:10px"><button class="btn sec" data-act="addc">${inCircuit(e.id)?'Im Zirkel ✓ (fest)':'In Zirkel aufnehmen'}</button></div><div style="margin-top:10px"><button class="btn sec" data-act="del" style="color:#d33">Löschen</button></div>`:''}</div>`;
     bindFormChips(sh,r);
     sh.querySelector('[data-act=cancel]').onclick=()=>sh.remove();
     sh.querySelector('[data-act=ok]').onclick=()=>{readForm();if(!draft.name){toast('Bitte einen Namen eingeben');return;}if(!draft.types.length){toast('Mindestens eine Art wählen');return;}
@@ -390,6 +421,8 @@ function openEditor(id){
       if(e){Object.assign(e,draft);}else{draft.id='u'+Date.now().toString(36);draft.src='eigene';S.pool.push(draft);
         draft.equip.forEach(q=>{if(!S.settings.equip.includes(q)&&q!=='ohne')S.settings.equip.push(q);});}
       save();sh.remove();render();toast('Gespeichert');};
+    const ac=sh.querySelector('[data-act=addc]');
+    if(ac)ac.onclick=()=>{sh.remove();addToCircuit(e.id);};
     const d=sh.querySelector('[data-act=del]');
     if(d)d.onclick=()=>{if(!confirm(`„${e.name}“ löschen?`))return;S.pool=S.pool.filter(x=>x.id!==e.id);if(S.current)S.current.items=S.current.items.filter(x=>x.id!==e.id);save();sh.remove();render();};
   };
@@ -450,6 +483,8 @@ function bind(){
   $('[data-reroll]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();reroll(+b.dataset.reroll);});
   $('[data-open]').forEach(b=>b.onclick=()=>b.classList.toggle('open'));
   $('[data-edit]').forEach(b=>b.onclick=()=>openEditor(b.dataset.edit));
+  $('[data-add]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();const id=b.dataset.add;
+    if(inCircuit(id)&&S.current.items.find(x=>x.id===id).locked){S.current.items=S.current.items.filter(x=>x.id!==id);save();render();toast('Aus dem Zirkel entfernt');}else addToCircuit(id);});
   $('[data-fregion]').forEach(b=>b.onclick=()=>{poolFilter.region=poolFilter.region===b.dataset.fregion?null:b.dataset.fregion;render();});
   $('[data-ftype]').forEach(b=>b.onclick=()=>{poolFilter.type=poolFilter.type===b.dataset.ftype?null:b.dataset.ftype;render();});
   $('[data-fequip]').forEach(b=>b.onclick=()=>{poolFilter.equip=poolFilter.equip===b.dataset.fequip?null:b.dataset.fequip;render();});
